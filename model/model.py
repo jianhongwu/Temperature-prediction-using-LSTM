@@ -4,17 +4,17 @@ Created on Mon Mar 25 17:31:28 2019
 
 @author: WJH
 """
-import numpy as np
+
 import tensorflow as tf
-from keras.layers import Input,Flatten,Dense,Dropout,Conv1D,Bidirectional,LSTM,AveragePooling1D,concatenate
+from keras.layers import Input,Flatten,Dense,Dropout,Conv1D,Bidirectional,LSTM,AveragePooling1D,concatenate,Reshape
 from keras.models import Model
 
-'''
+
 def normal_model(input_shape):
     inputs = Input(input_shape)
-    inputs = Flatten()(inputs)
+    x = Flatten()(inputs)
     
-    x = Dense(units=50,activation='relu')(inputs)
+    x = Dense(units=50,activation='relu')(x)
     x = Dropout(0.3)(x)
     x = Dense(units=30,activation='relu')(x)
     x = Dropout(0.3)(x)
@@ -26,7 +26,7 @@ def normal_model(input_shape):
     outputs = Dense(units=1)(x)
     
     return Model(inputs=inputs,outputs=outputs)
-    '''
+    
 def BLSTM_model(input_shape):
 
     with tf.name_scope('input'):
@@ -40,13 +40,13 @@ def BLSTM_model(input_shape):
         net1 = Bidirectional(LSTM(80, go_backwards=False))(conv1)
         net1 = Dropout(0.3)(net1)
 
-    with tf.name_scope('BLSTM_backward'):
-        net2 = Bidirectional(LSTM(80, go_backwards=True))(conv1)
-        net2 = Dropout(0.3)(net2)
+#    with tf.name_scope('BLSTM_backward'):
+#        net2 = Bidirectional(LSTM(80, go_backwards=True))(conv1)
+#        net2 = Dropout(0.3)(net2)
 
     with tf.name_scope('Dense_100'):
-        net = concatenate([net1, net2])
-        net = Dense(100, activation='relu')(net)
+#        net = concatenate([net1, net2])
+        net = Dense(100, activation='relu')(net1)
         net = Dropout(0.3)(net)
 
     with tf.name_scope('Dense_50'):

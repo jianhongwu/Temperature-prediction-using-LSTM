@@ -25,15 +25,18 @@ model = BLSTM_model(input_shape)
 model.compile(optimizer=keras.optimizers.Adam(1e-4),loss=keras.losses.mean_squared_error)
 
 # CALL BACK
-cb_tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=20, batch_size=Glo_paras.BATCH_SIZE,
+cb_tensorboard = keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=Glo_paras.BATCH_SIZE,
                                              write_graph=True, write_grads=True,
                                              write_images=False, embeddings_freq=0,
                                              embeddings_layer_names=None, embeddings_metadata=None)
 
-cb_ckpt = keras.callbacks.ModelCheckpoint('./weights.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', verbose=1,
-                                save_best_only=False, save_weights_only=False, mode='auto', period=1)
+if not os.path.exists('./checkpoint'):
+    os.mkdir('./checkpoint')
+cb_ckpt = keras.callbacks.ModelCheckpoint('./checkpoint/weights.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', verbose=1,
+                                save_best_only=False, save_weights_only=True, mode='auto', period=10)
 
+cb_es = keras.callbacks.EarlyStopping(monitor='val_loss',patience=10)
 # TRAIN MODEL
 model.fit(x_train, y_train, batch_size=Glo_paras.BATCH_SIZE, shuffle=True,
-          epochs=5, validation_data=(x_val, y_val),
-          callbacks=[cb_ckpt])
+          epochs=200, validation_data=(x_val, y_val),
+          callbacks=[cb_tensorboard,cb_ckpt,cb_esx ])

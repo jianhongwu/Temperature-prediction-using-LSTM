@@ -16,11 +16,9 @@ def prepro(FILE_PATH):
     # IMPORT DATA
     data = pd.read_csv(FILE_PATH).drop('TIME',axis=1)
     
-    # NORMALIZE
-    scaler = StandardScaler()
-    data = scaler.fit_transform(data)
     
     # DATA GENERATOR
+    data = np.array(data)
     X_data = []
     y_data = []
     for i in range(len(data)-WINDOW_SIZE):
@@ -31,7 +29,14 @@ def prepro(FILE_PATH):
         y_data.append(y)
     
     X_data = np.array(X_data)
-    y_data = np.array(y_data)
+    y_data = np.array(y_data).reshape((len(y_data),-1))
+    
+    # NORMALIZE
+    scaler_x = StandardScaler()
+    X_data = scaler_x.fit_transform(X_data)
+    
+    scaler_y = StandardScaler()
+    y_data = scaler_y.fit_transform(y_data)
     
     # SPLIT DATA
     train_num = np.round(len(X_data)*TRAIN_RATIO).astype(int)
@@ -50,6 +55,6 @@ def prepro(FILE_PATH):
     X_test = X_data[train_num+val_num:,:].reshape((test_num,WINDOW_SIZE,data.shape[1]))
     y_test = y_data[train_num+val_num:].reshape((test_num,-1))
     
-    return X_train,y_train,X_val,y_val, X_test,y_test,scaler
+    return X_train,y_train,X_val,y_val, X_test,y_test,scaler_y
 
 prepro(FILE_PATH)
